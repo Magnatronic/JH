@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Testing Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #00ffff;
+        }
+        .section {
+            background: #1a1a1a;
+            border: 2px solid #00ffff;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .status {
+            font-size: 24px;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .connected {
+            background: #00ff00;
+            color: #000000;
+        }
+        .disconnected {
+            background: #ff0000;
+            color: #ffffff;
+        }
+        .info {
+            background: #ffff00;
+            color: #000000;
+        }
+        button {
+            background: #00ffff;
+            color: #000000;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #00dddd;
+        }
+        #cursorPosition {
+            font-size: 20px;
+            color: #ffff00;
+        }
+        #log {
+            background: #000000;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 5px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎮 Input Testing Tool</h1>
+    <p>Use this page to test all input methods before playing the games.</p>
+
+    <div class="section">
+        <h2>Gamepad Status</h2>
+        <div id="gamepadStatus" class="status disconnected">No gamepad connected</div>
+        <div id="gamepadInfo"></div>
+    </div>
+
+    <div class="section">
+        <h2>Audio Testing</h2>
+        <button onclick="testBeep()">Test Beep</button>
+        <button onclick="testSuccess()">Test Success Sound</button>
+        <button onclick="testCelebration()">Test Celebration</button>
+        <button onclick="testVoice()">Test Voice ("Hello!")</button>
+        <div id="audioStatus"></div>
+    </div>
+
+    <div class="section">
+        <h2>Input Testing</h2>
+        <p>Try using keyboard, mouse, or controller to move around</p>
+        <div id="cursorPosition">Cursor: X=0, Y=0</div>
+        <p>Button presses will be logged below</p>
+    </div>
+
+    <div class="section">
+        <h2>Event Log</h2>
+        <div id="log"></div>
+        <button onclick="clearLog()">Clear Log</button>
+    </div>
+
+    <div class="section">
+        <h2>Browser Compatibility</h2>
+        <div id="compatibility"></div>
+    </div>
+
+    <script>
+        // Log function
+        function log(message) {
+            const logEl = document.getElementById('log');
+            const time = new Date().toLocaleTimeString();
+            logEl.innerHTML += `[${time}] ${message}<br>`;
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+
+        // Check browser compatibility
+        function checkCompatibility() {
+            const compat = document.getElementById('compatibility');
+            let html = '';
+
+            // Gamepad API
+            const hasGamepad = 'getGamepads' in navigator;
+            html += `<div class="status ${hasGamepad ? 'connected' : 'disconnected'}">
+                Gamepad API: ${hasGamepad ? '✓ Supported' : '✗ Not Supported'}
+            </div>`;
+
+            // Web Audio API
+            const hasAudio = 'AudioContext' in window || 'webkitAudioContext' in window;
+            html += `<div class="status ${hasAudio ? 'connected' : 'disconnected'}">
+                Web Audio API: ${hasAudio ? '✓ Supported' : '✗ Not Supported'}
+            </div>`;
+
+            // Web Speech API
+            const hasSpeech = 'speechSynthesis' in window;
+            html += `<div class="status ${hasSpeech ? 'connected' : 'disconnected'}">
+                Web Speech API: ${hasSpeech ? '✓ Supported' : '✗ Not Supported'}
+            </div>`;
+
+            // RequestAnimationFrame
+            const hasRAF = 'requestAnimationFrame' in window;
+            html += `<div class="status ${hasRAF ? 'connected' : 'disconnected'}">
+                RequestAnimationFrame: ${hasRAF ? '✓ Supported' : '✗ Not Supported'}
+            </div>`;
+
+            compat.innerHTML = html;
+        }
+
+        // Audio testing
+        let audioContext = null;
+
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                log('Audio context initialized');
+            }
+        }
+
+        function testBeep() {
+            initAudio();
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            osc.frequency.value = 440;
+            gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+            osc.start();
+            osc.stop(audioContext.currentTime + 0.2);
+            log('Beep sound played');
+        }
+
+        function testSuccess() {
+            initAudio();
+            const freqs = [523.25, 659.25, 783.99];
+            freqs.forEach((freq, i) => {
+                setTimeout(() => {
+                    const osc = audioContext.createOscillator();
+                    const gain = audioContext.createGain();
+                    osc.connect(gain);
+                    gain.connect(audioContext.destination);
+                    osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    osc.start();
+                    osc.stop(audioContext.currentTime + 0.1);
+                }, i * 100);
+            });
+            log('Success sound played');
+        }
+
+        function testCelebration() {
+            initAudio();
+            const melody = [
+                { freq: 523.25, time: 0 },
+                { freq: 659.25, time: 150 },
+                { freq: 783.99, time: 300 },
+                { freq: 1046.5, time: 450 }
+            ];
+            melody.forEach(note => {
+                setTimeout(() => {
+                    const osc = audioContext.createOscillator();
+                    const gain = audioContext.createGain();
+                    osc.connect(gain);
+                    gain.connect(audioContext.destination);
+                    osc.frequency.value = note.freq;
+                    gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    osc.start();
+                    osc.stop(audioContext.currentTime + 0.2);
+                }, note.time);
+            });
+            log('Celebration sound played');
+        }
+
+        function testVoice() {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance('Hello! This is a test.');
+                utterance.rate = 1.0;
+                utterance.pitch = 1.2;
+                speechSynthesis.speak(utterance);
+                log('Voice test: "Hello! This is a test."');
+            } else {
+                log('ERROR: Speech synthesis not supported');
+            }
+        }
+
+        // Gamepad detection
+        function checkGamepads() {
+            const gamepads = navigator.getGamepads();
+            let connected = false;
+            let info = '';
+
+            for (let i = 0; i < gamepads.length; i++) {
+                if (gamepads[i]) {
+                    connected = true;
+                    const gp = gamepads[i];
+                    info += `<div class="status info">
+                        ID: ${gp.id}<br>
+                        Index: ${gp.index}<br>
+                        Buttons: ${gp.buttons.length}<br>
+                        Axes: ${gp.axes.length}<br>
+                        Left Stick: X=${gp.axes[0]?.toFixed(2) || 0}, Y=${gp.axes[1]?.toFixed(2) || 0}
+                    </div>`;
+
+                    // Check for button presses
+                    gp.buttons.forEach((button, idx) => {
+                        if (button.pressed) {
+                            log(`Gamepad button ${idx} pressed`);
+                        }
+                    });
+                }
+            }
+
+            const statusEl = document.getElementById('gamepadStatus');
+            const infoEl = document.getElementById('gamepadInfo');
+
+            if (connected) {
+                statusEl.className = 'status connected';
+                statusEl.textContent = '✓ Gamepad Connected';
+                infoEl.innerHTML = info;
+            } else {
+                statusEl.className = 'status disconnected';
+                statusEl.textContent = 'No gamepad connected';
+                infoEl.innerHTML = '';
+            }
+        }
+
+        // Keyboard
+        window.addEventListener('keydown', (e) => {
+            log(`Key pressed: ${e.key}`);
+        });
+
+        // Mouse
+        let lastMouseLog = 0;
+        window.addEventListener('mousemove', (e) => {
+            const now = Date.now();
+            if (now - lastMouseLog > 100) {
+                document.getElementById('cursorPosition').textContent = 
+                    `Cursor: X=${e.clientX}, Y=${e.clientY}`;
+                lastMouseLog = now;
+            }
+        });
+
+        window.addEventListener('click', (e) => {
+            log(`Mouse clicked at X=${e.clientX}, Y=${e.clientY}`);
+        });
+
+        // Gamepad events
+        window.addEventListener('gamepadconnected', (e) => {
+            log(`Gamepad connected: ${e.gamepad.id}`);
+        });
+
+        window.addEventListener('gamepaddisconnected', (e) => {
+            log(`Gamepad disconnected: ${e.gamepad.id}`);
+        });
+
+        // Initialize
+        checkCompatibility();
+        setInterval(checkGamepads, 100);
+
+        log('Input testing tool loaded');
+        log('Connect a gamepad and press buttons to test');
+        log('Use keyboard or mouse to test input');
+    </script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+# Local Testing
+
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/
+
+# Build files (if added later)
+dist/
+build/

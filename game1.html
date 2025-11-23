@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Size Collection Challenge</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/game1.css">
+</head>
+<body>
+    <!-- Setup Screen -->
+    <div id="setupScreen" class="screen active">
+        <div class="setup-container">
+            <h1>Set up your game</h1>
+
+            <div class="settings-grid">
+                <div class="setting-group">
+                    <label for="difficultyLevel">Difficulty Level (1-5)</label>
+                    <select id="difficultyLevel" class="large-input">
+                        <option value="1" selected>Level 1 - Easy (3 objects, 2 sizes)</option>
+                        <option value="2">Level 2 - Basic (5 objects, 2 sizes)</option>
+                        <option value="3">Level 3 - Medium (7 objects, 3 sizes)</option>
+                        <option value="4">Level 4 - Hard (8 objects, 3 sizes)</option>
+                        <option value="5">Level 5 - Expert (10 objects, 3 sizes)</option>
+                    </select>
+                </div>
+
+                <div class="setting-group">
+                    <label for="numObjects">Number of Objects</label>
+                    <select id="numObjects" class="large-input">
+                        <option value="3" selected>3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                    </select>
+                </div>
+
+                <div class="setting-group">
+                    <label for="numSizes">Number of Sizes</label>
+                    <select id="numSizes" class="large-input">
+                        <option value="2" selected>2</option>
+                        <option value="3">3</option>
+                    </select>
+                </div>
+
+                <div class="setting-group">
+                    <label>Size Variation (select one or more)</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="varLarger" checked>
+                            <span>Larger/Smaller</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="varWider">
+                            <span>Wider/Thinner</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="varTaller">
+                            <span>Taller/Shorter</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <label for="gameMode">Game Mode</label>
+                    <select id="gameMode" class="large-input">
+                        <option value="practice" selected>Practice Mode (no penalties)</option>
+                        <option value="challenge">Challenge Mode (wrong collection ends game)</option>
+                    </select>
+                </div>
+
+                <div class="setting-group">
+                    <label for="collectionType">Collection Type</label>
+                    <select id="collectionType" class="large-input">
+                        <option value="collide">Collide (automatic)</option>
+                        <option value="button">Select with Button</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button id="startGameBtn" class="large-btn primary-btn">START GAME</button>
+                <button onclick="window.location.href='index.html'" class="large-btn secondary-btn">Back to Home</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gameplay Screen -->
+    <div id="gameplayScreen" class="screen">
+        <div class="hud">
+            <div class="timer">Time: <span id="timer">00:00</span></div>
+            <div class="instruction" id="instruction">Collect all the LARGE circles!</div>
+            <div class="score">Collected: <span id="collected">0</span> / <span id="total">0</span></div>
+        </div>
+
+        <div id="gameArea" class="game-area">
+            <div id="cursor" class="cursor"></div>
+            <!-- Objects will be dynamically generated here -->
+        </div>
+    </div>
+
+    <!-- Win Screen -->
+    <div id="winScreen" class="screen">
+        <div class="win-container">
+            <h1 class="win-title">WELL DONE!</h1>
+            <div class="confetti" id="confetti"></div>
+            <div class="win-stats">
+                <p class="final-time">Your Time: <span id="finalTime">00:00</span></p>
+                <p class="best-time" id="bestTimeDisplay" style="display: none;">Best Time: <span id="bestTime">00:00</span></p>
+            </div>
+            <div class="button-group">
+                <button id="playAgainBtn" class="large-btn primary-btn">PLAY AGAIN?</button>
+                <button onclick="window.location.href='index.html'" class="large-btn secondary-btn">Back to Home</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts/inputHandler.js"></script>
+    <script src="scripts/audioManager.js"></script>
+    <script src="scripts/game1.js"></script>
+</body>
+</html>

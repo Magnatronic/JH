@@ -1,0 +1,214 @@
+// ==========================================
+// Input Handler - Universal input management for joystick, gamepad, keyboard, and switch
+// ==========================================
+
+class InputHandler {
+    constructor() {
+        this.cursorX = 0;
+        this.cursorY = 0;
+        this.gameArea = null;
+        this.buttonPressed = false;
+        this.lastButtonTime = 0;
+        this.debounceTime = 100; // 100ms debounce for switch inputs
+        
+        // Joystick/Gamepad settings
+        this.deadzone = 0.1; // 10% deadzone to avoid drift
+        this.sensitivity = 5; // Movement speed multiplier
+        
+        // Callbacks
+        this.onMove = null;
+        this.onButtonPress = null;
+        
+        // Gamepad state
+        this.gamepadIndex = null;
+        this.lastGamepadState = {};
+        
+        this.setupKeyboard();
+        this.setupGamepad();
+        this.setupMouse();
+        this.update();
+    }
+    
+    init(gameArea, cursor, collisionCallback, autoCollect = true) {
+        this.gameArea = gameArea;
+        const rect = gameArea.getBoundingClientRect();
+        
+        // Start cursor at center of game area
+        this.cursorX = rect.width / 2;
+        this.cursorY = rect.height - 100; // Near bottom center
+        
+        this.updateCursorPosition();
+        
+        // Set up collision detection
+        if (autoCollect) {
+            this.onMove = (x, y) => {
+                const collision = this.checkCollision(x, y);
+                if (collision) collisionCallback(collision);
+            };
+        } else {
+            this.onButtonPress = (x, y) => {
+                const collision = this.checkCollision(x, y);
+                if (collision) collisionCallback(collision);
+            };
+        }
+    }
+    
+    setupKeyboard() {
+        const keys = {};
+        
+        window.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+            
+            // Space or Enter for button press
+            if (e.key === ' ' || e.key === 'Enter') {
+                this.triggerButton();
+                e.preventDefault();
+            }
+        });
+        
+        window.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+        
+        // Arrow key movement
+        this.keys = keys;
+        setInterval(() => {
+            let dx = 0;
+            let dy = 0;
+            
+            if (this.keys['ArrowLeft'] || this.keys['a']) dx -= 5;
+            if (this.keys['ArrowRight'] || this.keys['d']) dx += 5;
+            if (this.keys['ArrowUp'] || this.keys['w']) dy -= 5;
+            if (this.keys['ArrowDown'] || this.keys['s']) dy += 5;
+            
+            if (dx !== 0 || dy !== 0) {
+                this.moveCursor(dx, dy);
+            }
+        }, 16); // ~60 FPS
+    }
+    
+    setupGamepad() {
+        window.addEventListener('gamepadconnected', (e) => {
+            console.log('Gamepad connected:', e.gamepad.id);
+            this.gamepadIndex = e.gamepad.index;
+        });
+        
+        window.addEventListener('gamepaddisconnected', (e) => {
+            console.log('Gamepad disconnected');
+            if (this.gamepadIndex === e.gamepad.index) {
+                this.gamepadIndex = null;
+            }
+        });
+    }
+    
+    setupMouse() {
+        // Mouse click only - don't follow mouse cursor
+        // Let joystick/keyboard control cursor position
+        window.addEventListener('click', () => {
+            this.triggerButton();
+        });
+    }
+    
+    update() {
+        // Poll gamepad state
+        if (this.gamepadIndex !== null) {
+            const gamepad = navigator.getGamepads()[this.gamepadIndex];
+            if (gamepad) {
+                this.handleGamepad(gamepad);
+            }
+        }
+        
+        requestAnimationFrame(() => this.update());
+    }
+    
+    handleGamepad(gamepad) {
+        // Left stick for movement (axes 0 and 1)
+        const x = gamepad.axes[0];
+        const y = gamepad.axes[1];
+        
+        // Apply deadzone
+        const dx = Math.abs(x) > this.deadzone ? x * this.sensitivity : 0;
+        const dy = Math.abs(y) > this.deadzone ? y * this.sensitivity : 0;
+        
+        if (dx !== 0 || dy !== 0) {
+            this.moveCursor(dx, dy);
+        }
+        
+        // Button presses (any button 0-15)
+        for (let i = 0; i < gamepad.buttons.length; i++) {
+            const button = gamepad.buttons[i];
+            const wasPressed = this.lastGamepadState[i] || false;
+            const isPressed = button.pressed;
+            
+            if (isPressed && !wasPressed) {
+                this.triggerButton();
+            }
+            
+            this.lastGamepadState[i] = isPressed;
+        }
+    }
+    
+    moveCursor(dx, dy) {
+        this.cursorX += dx;
+        this.cursorY += dy;
+        
+        // Clamp to game area bounds
+        if (this.gameArea) {
+            const rect = this.gameArea.getBoundingClientRect();
+            this.cursorX = Math.max(0, Math.min(rect.width, this.cursorX));
+            this.cursorY = Math.max(0, Math.min(rect.height, this.cursorY));
+        }
+        
+        this.updateCursorPosition();
+        
+        if (this.onMove) {
+            this.onMove(this.cursorX, this.cursorY);
+        }
+    }
+    
+    updateCursorPosition() {
+        const cursor = document.getElementById('cursor');
+        if (cursor) {
+            cursor.style.left = this.cursorX + 'px';
+            cursor.style.top = this.cursorY + 'px';
+        }
+    }
+    
+    triggerButton() {
+        const now = Date.now();
+        if (now - this.lastButtonTime < this.debounceTime) {
+            return; // Debounce
+        }
+        
+        this.lastButtonTime = now;
+        this.buttonPressed = true;
+        
+        if (this.onButtonPress) {
+            this.onButtonPress(this.cursorX, this.cursorY);
+        }
+        
+        // Reset after a frame
+        setTimeout(() => {
+            this.buttonPressed = false;
+        }, 50);
+    }
+    
+    getCursorPosition() {
+        return { x: this.cursorX, y: this.cursorY };
+    }
+    
+    isButtonPressed() {
+        return this.buttonPressed;
+    }
+    
+    reset() {
+        this.cursorX = window.innerWidth / 2;
+        this.cursorY = window.innerHeight / 2;
+        this.updateCursorPosition();
+    }
+}
+
+// Export for use in games
+if (typeof window !== 'undefined') {
+    window.InputHandler = InputHandler;
+}
