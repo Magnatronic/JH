@@ -111,9 +111,14 @@ class SizeCollectionGame {
         this.generateObjects();
         
         // Update instruction
-        const shape = this.objects[0].shape;
-        document.getElementById('instruction').textContent = 
-            `Collect all the ${this.targetSize.toUpperCase()} ${shape}s!`;
+        const sizeText = this.targetSize === 'large' ? 'largest' :
+                        this.targetSize === 'small' ? 'smallest' :
+                        this.targetSize === 'wide' ? 'widest' :
+                        this.targetSize === 'thin' ? 'thinnest' :
+                        this.targetSize === 'tall' ? 'tallest' :
+                        this.targetSize === 'short' ? 'shortest' : this.targetSize;
+        
+        document.getElementById('instruction').textContent = `Collect the ${sizeText}!`;
         
         // Update score display
         document.getElementById('collected').textContent = '0';
