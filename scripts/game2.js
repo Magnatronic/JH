@@ -36,17 +36,6 @@ class NumberCollectionGame {
         // Initialize target number options based on current range
         const numberRange = document.getElementById('numberRange').value;
         this.updateTargetNumberOptions(numberRange);
-        
-        // Initialize input handler once
-        const gameArea = document.getElementById('gameArea');
-        if (gameArea) {
-            this.inputHandler.init(
-                gameArea,
-                document.getElementById('cursor'),
-                null,
-                true
-            );
-        }
     }
     
     setupEventListeners() {

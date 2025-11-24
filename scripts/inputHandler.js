@@ -3,7 +3,7 @@
 // ==========================================
 
 class InputHandler {
-    constructor() {
+    constructor(gamepadIndex = null) {
         this.cursorX = 0;
         this.cursorY = 0;
         this.gameArea = null;
@@ -20,22 +20,31 @@ class InputHandler {
         this.onButtonPress = null;
         
         // Gamepad state
-        this.gamepadIndex = null;
+        this.gamepadIndex = gamepadIndex;
         this.lastGamepadState = {};
         
         this.setupKeyboard();
-        this.setupGamepad();
+        // Only auto-detect gamepad if no specific index provided
+        if (gamepadIndex === null) {
+            this.setupGamepad();
+        }
         this.setupMouse();
         this.update();
     }
     
-    init(gameArea, cursor, collisionCallback, autoCollect = true) {
+    init(gameArea, cursor, collisionCallback, autoCollect = true, startX = null, startY = null) {
         this.gameArea = gameArea;
+        this.cursor = cursor; // Store cursor element
         const rect = gameArea.getBoundingClientRect();
         
-        // Start cursor at center of game area
-        this.cursorX = rect.width / 2;
-        this.cursorY = rect.height - 100; // Near bottom center
+        // Start cursor at specified position or center of game area
+        if (startX !== null && startY !== null) {
+            this.cursorX = startX;
+            this.cursorY = startY;
+        } else {
+            this.cursorX = rect.width / 2;
+            this.cursorY = rect.height - 100; // Near bottom center
+        }
         
         this.updateCursorPosition();
         
@@ -130,6 +139,13 @@ class InputHandler {
         const dx = Math.abs(x) > this.deadzone ? x * this.sensitivity : 0;
         const dy = Math.abs(y) > this.deadzone ? y * this.sensitivity : 0;
         
+        // Debug logging
+        if (!this.moveLogCount) this.moveLogCount = 0;
+        if ((dx !== 0 || dy !== 0) && this.moveLogCount < 3) {
+            console.log(`[INPUT GP${this.gamepadIndex}] Axes: (${x.toFixed(2)}, ${y.toFixed(2)}) -> Movement: (${dx.toFixed(2)}, ${dy.toFixed(2)})`);
+            this.moveLogCount++;
+        }
+        
         if (dx !== 0 || dy !== 0) {
             this.moveCursor(dx, dy);
         }
@@ -155,6 +171,13 @@ class InputHandler {
         // Clamp to game area bounds
         if (this.gameArea) {
             const rect = this.gameArea.getBoundingClientRect();
+            
+            // Debug bounds
+            if (!this.boundsLogged) {
+                console.log(`[BOUNDS GP${this.gamepadIndex}] Game area rect:`, rect.width, 'x', rect.height);
+                this.boundsLogged = true;
+            }
+            
             this.cursorX = Math.max(0, Math.min(rect.width, this.cursorX));
             this.cursorY = Math.max(0, Math.min(rect.height, this.cursorY));
         }
@@ -167,10 +190,20 @@ class InputHandler {
     }
     
     updateCursorPosition() {
-        const cursor = document.getElementById('cursor');
-        if (cursor) {
-            cursor.style.left = this.cursorX + 'px';
-            cursor.style.top = this.cursorY + 'px';
+        // Use stored cursor element instead of hardcoded ID
+        // Also support legacy mode where cursor is looked up by ID
+        const cursorElement = this.cursor || document.getElementById('cursor');
+        
+        if (cursorElement) {
+            cursorElement.style.left = this.cursorX + 'px';
+            cursorElement.style.top = this.cursorY + 'px';
+            
+            // Debug: log first few updates
+            if (!this.updateCount) this.updateCount = 0;
+            if (this.updateCount < 3 && this.cursor) {
+                console.log(`[CURSOR] Update #${this.updateCount}: pos(${this.cursorX}, ${this.cursorY}), element:`, cursorElement.id);
+                this.updateCount++;
+            }
         }
     }
     

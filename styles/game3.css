@@ -1,0 +1,431 @@
+/* ==========================================
+   Game 3: Color Collectors - Multiplayer Styles
+   ========================================== */
+
+/* ==========================================
+   Join Screen
+   ========================================== */
+
+.join-container {
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.subtitle {
+    font-size: var(--font-size-xlarge);
+    color: var(--accent-cyan);
+    margin-bottom: var(--spacing-xl);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+.players-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+}
+
+.player-slot {
+    background: rgba(255, 255, 255, 0.05);
+    border: 3px solid var(--accent-cyan);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+    transition: all 0.3s ease;
+}
+
+.player-slot.joined {
+    border-color: #00ff00;
+    background: rgba(0, 255, 0, 0.1);
+}
+
+.player-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin: 0 auto var(--spacing-md);
+    border: 4px solid #ffffff;
+    opacity: 0.3;
+    transition: all 0.3s ease;
+}
+
+.player-slot.joined .player-icon {
+    opacity: 1;
+    box-shadow: 0 0 30px currentColor;
+}
+
+.player-icon.blue {
+    background: linear-gradient(135deg, #0099ff, #0066cc);
+}
+
+.player-icon.red {
+    background: linear-gradient(135deg, #ff3333, #cc0000);
+}
+
+.player-icon.green {
+    background: linear-gradient(135deg, #00ff00, #00cc00);
+}
+
+.player-icon.yellow {
+    background: linear-gradient(135deg, #ffff00, #cccc00);
+}
+
+.player-slot h2 {
+    font-size: var(--font-size-xlarge);
+    margin: var(--spacing-sm) 0;
+}
+
+.player-slot .status {
+    font-size: var(--font-size-large);
+    color: var(--accent-cyan);
+}
+
+.player-slot.joined .status {
+    color: #00ff00;
+}
+
+/* ==========================================
+   Gameplay HUD
+   ========================================== */
+
+.hud {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: rgba(0, 0, 0, 0.9);
+    display: none; /* Hidden by default */
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 var(--spacing-lg);
+    z-index: 100;
+    border-bottom: 3px solid var(--accent-cyan);
+}
+
+.team-score {
+    font-size: var(--font-size-xxlarge);
+    color: var(--accent-yellow);
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.team-score span:first-child {
+    font-size: var(--font-size-xlarge);
+}
+
+.best-score-hud {
+    font-size: var(--font-size-large);
+    color: var(--accent-cyan);
+    margin-left: var(--spacing-lg);
+}
+
+.best-score-hud span {
+    color: var(--accent-yellow);
+}
+
+.team-score span:last-child {
+    font-size: var(--font-size-xxlarge);
+    margin-left: var(--spacing-sm);
+}
+
+.timer {
+    font-size: var(--font-size-xxlarge);
+    color: var(--primary-bright);
+    font-weight: bold;
+}
+
+.player-scores {
+    position: fixed;
+    top: 90px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-around;
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 99;
+}
+
+.player-score {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--border-radius);
+    min-width: 150px;
+}
+
+.player-score.blue {
+    background: rgba(0, 153, 255, 0.2);
+    border: 2px solid #0099ff;
+}
+
+.player-score.red {
+    background: rgba(255, 51, 51, 0.2);
+    border: 2px solid #ff3333;
+}
+
+.player-score.green {
+    background: rgba(0, 255, 0, 0.2);
+    border: 2px solid #00ff00;
+}
+
+.player-score.yellow {
+    background: rgba(255, 255, 0, 0.2);
+    border: 2px solid #ffff00;
+}
+
+.player-score .player-name {
+    font-size: var(--font-size-large);
+    font-weight: bold;
+}
+
+.player-score .score {
+    font-size: 36px;
+    font-weight: bold;
+    color: var(--accent-yellow);
+}
+
+/* Player Scores - Inline in HUD */
+.player-scores-inline {
+    display: flex;
+    gap: var(--spacing-lg);
+    align-items: center;
+}
+
+.player-score-inline {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: var(--font-size-xlarge);
+    font-weight: bold;
+}
+
+.player-score-inline.blue {
+    color: #0099ff;
+}
+
+.player-score-inline.red {
+    color: #ff3333;
+}
+
+.player-score-inline.green {
+    color: #00ff00;
+}
+
+.player-score-inline.yellow {
+    color: #ffff00;
+}
+
+.player-score-inline .score {
+    font-size: var(--font-size-xlarge);
+    color: var(--accent-yellow);
+}
+
+/* ==========================================
+   Gameplay Screen Layout
+   ========================================== */
+
+#gameplayScreen {
+    flex-direction: column;
+    padding: 0;
+}
+
+/* ==========================================
+   Game Area
+   ========================================== */
+
+.game-area {
+    position: relative;
+    flex: 1;
+    width: 100%;
+    background: var(--bg-dark);
+    overflow: hidden;
+}
+
+/* ==========================================
+   Colored Objects
+   ========================================== */
+
+.color-object {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 80px;
+    height: 80px;
+    border: 4px solid #ffffff;
+    border-radius: 15px;
+    color: #000000;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    user-select: none;
+}
+
+.color-object:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 1);
+}
+
+.color-object.blue {
+    background: linear-gradient(135deg, #0099ff, #0066cc);
+}
+
+.color-object.red {
+    background: linear-gradient(135deg, #ff3333, #cc0000);
+}
+
+.color-object.green {
+    background: linear-gradient(135deg, #00ff00, #00cc00);
+}
+
+.color-object.yellow {
+    background: linear-gradient(135deg, #ffff00, #cccc00);
+}
+
+.color-object.collected {
+    animation: collect 0.3s ease-out forwards;
+}
+
+/* ==========================================
+   Player Cursors
+   ========================================== */
+
+.player-cursor {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 4px solid #ffffff;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 1000;
+    box-shadow: 0 0 20px currentColor;
+}
+
+.player-cursor.blue {
+    background: #0099ff;
+    box-shadow: 0 0 20px #0099ff;
+}
+
+.player-cursor.red {
+    background: #ff3333;
+    box-shadow: 0 0 20px #ff3333;
+}
+
+.player-cursor.green {
+    background: #00ff00;
+    box-shadow: 0 0 20px #00ff00;
+}
+
+.player-cursor.yellow {
+    background: #ffff00;
+    box-shadow: 0 0 20px #ffff00;
+}
+
+/* ==========================================
+   Win Screen Results
+   ========================================== */
+
+.player-results {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+}
+
+.player-result {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-large);
+}
+
+.player-result.blue {
+    background: rgba(0, 153, 255, 0.2);
+    border: 2px solid #0099ff;
+}
+
+.player-result.red {
+    background: rgba(255, 51, 51, 0.2);
+    border: 2px solid #ff3333;
+}
+
+.player-result.green {
+    background: rgba(0, 255, 0, 0.2);
+    border: 2px solid #00ff00;
+}
+
+.player-result.yellow {
+    background: rgba(255, 255, 0, 0.2);
+    border: 2px solid #ffff00;
+}
+
+.player-result .player-name {
+    font-weight: bold;
+}
+
+.player-result .score {
+    color: var(--accent-yellow);
+    font-weight: bold;
+    font-size: var(--font-size-xlarge);
+}
+
+/* Win Message */
+.win-message {
+    font-size: var(--font-size-xlarge);
+    font-weight: bold;
+    color: var(--accent-cyan);
+    margin: var(--spacing-sm) 0;
+    text-align: center;
+}
+
+/* Win Screen Compact Layout */
+#winScreen {
+    overflow: hidden;
+}
+
+.win-container {
+    max-width: 800px;
+    width: 100%;
+    margin: 0 auto;
+    padding: var(--spacing-lg);
+}
+
+.win-title {
+    font-size: 36px;
+    margin-bottom: var(--spacing-xs);
+}
+
+.win-stats {
+    margin: var(--spacing-sm) 0;
+}
+
+.final-score, .best-score {
+    font-size: var(--font-size-medium);
+    margin: var(--spacing-xs) 0;
+}
+
+.player-results {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+    max-height: 200px;
+    overflow-y: auto;
+}
