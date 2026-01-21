@@ -60,6 +60,44 @@ class NumberCollectionGame {
         document.getElementById('tryAgainBtn').addEventListener('click', () => {
             this.resetGame();
         });
+        
+        // Controller support for dialog screens
+        this.setupControllerForDialogs();
+    }
+    
+    setupControllerForDialogs() {
+        let lastButtonState = {};
+        
+        const pollController = () => {
+            const gamepads = navigator.getGamepads();
+            
+            for (let i = 0; i < gamepads.length; i++) {
+                if (gamepads[i]) {
+                    const gamepad = gamepads[i];
+                    
+                    // Check button 0 (A button) for press
+                    const wasPressed = lastButtonState[i] || false;
+                    const isPressed = gamepad.buttons[0]?.pressed || false;
+                    
+                    if (isPressed && !wasPressed) {
+                        // Check if we're on win or game over screen
+                        const winScreen = document.getElementById('winScreen');
+                        const gameOverScreen = document.getElementById('gameOverScreen');
+                        
+                        if ((winScreen && winScreen.classList.contains('active')) ||
+                            (gameOverScreen && gameOverScreen.classList.contains('active'))) {
+                            this.resetGame();
+                        }
+                    }
+                    
+                    lastButtonState[i] = isPressed;
+                }
+            }
+            
+            requestAnimationFrame(pollController);
+        };
+        
+        pollController();
     }
     
     updateTargetNumberOptions(range) {

@@ -45,6 +45,41 @@ class SizeCollectionGame {
         document.getElementById('playAgainBtn').addEventListener('click', () => {
             this.resetGame();
         });
+        
+        // Controller support for dialog screens
+        this.setupControllerForDialogs();
+    }
+    
+    setupControllerForDialogs() {
+        let lastButtonState = {};
+        
+        const pollController = () => {
+            const gamepads = navigator.getGamepads();
+            
+            for (let i = 0; i < gamepads.length; i++) {
+                if (gamepads[i]) {
+                    const gamepad = gamepads[i];
+                    
+                    // Check button 0 (A button) for press
+                    const wasPressed = lastButtonState[i] || false;
+                    const isPressed = gamepad.buttons[0]?.pressed || false;
+                    
+                    if (isPressed && !wasPressed) {
+                        // Check if we're on win screen
+                        const winScreen = document.getElementById('winScreen');
+                        if (winScreen && winScreen.classList.contains('active')) {
+                            this.resetGame();
+                        }
+                    }
+                    
+                    lastButtonState[i] = isPressed;
+                }
+            }
+            
+            requestAnimationFrame(pollController);
+        };
+        
+        pollController();
     }
     
     applyDifficultyPreset(level) {
