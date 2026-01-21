@@ -362,7 +362,9 @@ class SizeCollectionGame {
         if (obj.isTarget) {
             this.collectedCount++;
             
-            // Visual feedback
+            // Visual feedback - green flash
+            this.flashScreen('#44FF44');
+            
             const element = document.getElementById(`object-${obj.id}`);
             element.classList.add('collecting');
             

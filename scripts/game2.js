@@ -497,7 +497,9 @@ class NumberCollectionGame {
         
         obj.collected = true;
         
-        // Visual feedback
+        // Visual feedback - green flash
+        this.flashScreen('#44FF44');
+        
         const element = obj.element;
         element.classList.add('collected');
         
