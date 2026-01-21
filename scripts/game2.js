@@ -178,8 +178,14 @@ class NumberCollectionGame {
         // Update HUD
         this.updateHUD();
         
-        // Reset input handler position
-        this.inputHandler.reset();
+        // Initialize input handler with game area for proper bounds
+        const cursor = document.getElementById('cursor');
+        this.inputHandler.init(
+            gameArea,
+            cursor,
+            (collision) => {}, // collision handled separately in setupInputHandlers
+            this.config.collectionType === 'collide'
+        );
         
         // Speak initial instruction
         setTimeout(() => {
@@ -606,6 +612,7 @@ class NumberCollectionGame {
         this.showScreen('gameplayScreen');
         this.setupGameplay();
         this.startTimer();
+        this.setupInputHandlers();
     }
     
     showScreen(screenId) {

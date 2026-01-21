@@ -30,7 +30,6 @@ class SizeCollectionGame {
     
     init() {
         this.setupEventListeners();
-        this.updateSliderValues();
     }
     
     setupEventListeners() {
@@ -124,8 +123,14 @@ class SizeCollectionGame {
         document.getElementById('collected').textContent = '0';
         document.getElementById('total').textContent = this.totalToCollect;
         
-        // Reset input handler
-        this.inputHandler.reset();
+        // Initialize input handler with game area for proper bounds
+        const cursor = document.getElementById('cursor');
+        this.inputHandler.init(
+            gameArea,
+            cursor,
+            (collision) => {}, // collision handled separately in setupInputHandlers
+            this.config.collectionType === 'collide'
+        );
     }
     
     getSizeOptions(variation) {
@@ -507,6 +512,7 @@ class SizeCollectionGame {
         this.showScreen('gameplayScreen');
         this.setupGameplay();
         this.startTimer();
+        this.setupInputHandlers();
     }
     
     showScreen(screenId) {

@@ -35,31 +35,24 @@ class InputHandler {
     init(gameArea, cursor, collisionCallback, autoCollect = true, startX = null, startY = null) {
         this.gameArea = gameArea;
         this.cursor = cursor; // Store cursor element
-        const rect = gameArea.getBoundingClientRect();
+        
+        // Use offsetWidth/offsetHeight for element's internal dimensions
+        const width = gameArea.offsetWidth;
+        const height = gameArea.offsetHeight;
         
         // Start cursor at specified position or center of game area
         if (startX !== null && startY !== null) {
             this.cursorX = startX;
             this.cursorY = startY;
         } else {
-            this.cursorX = rect.width / 2;
-            this.cursorY = rect.height - 100; // Near bottom center
+            this.cursorX = width / 2;
+            this.cursorY = height - 100; // Near bottom center
         }
         
         this.updateCursorPosition();
         
-        // Set up collision detection
-        if (autoCollect) {
-            this.onMove = (x, y) => {
-                const collision = this.checkCollision(x, y);
-                if (collision) collisionCallback(collision);
-            };
-        } else {
-            this.onButtonPress = (x, y) => {
-                const collision = this.checkCollision(x, y);
-                if (collision) collisionCallback(collision);
-            };
-        }
+        // Ensure bounds are clamped after initialization
+        this.clampToBounds();
     }
     
     setupKeyboard() {
@@ -168,24 +161,39 @@ class InputHandler {
         this.cursorX += dx;
         this.cursorY += dy;
         
-        // Clamp to game area bounds
-        if (this.gameArea) {
-            const rect = this.gameArea.getBoundingClientRect();
-            
-            // Debug bounds
-            if (!this.boundsLogged) {
-                console.log(`[BOUNDS GP${this.gamepadIndex}] Game area rect:`, rect.width, 'x', rect.height);
-                this.boundsLogged = true;
-            }
-            
-            this.cursorX = Math.max(0, Math.min(rect.width, this.cursorX));
-            this.cursorY = Math.max(0, Math.min(rect.height, this.cursorY));
-        }
+        // Always clamp to bounds
+        this.clampToBounds();
         
         this.updateCursorPosition();
         
         if (this.onMove) {
             this.onMove(this.cursorX, this.cursorY);
+        }
+    }
+    
+    clampToBounds() {
+        // Clamp to game area bounds if available, otherwise use window bounds
+        if (this.gameArea) {
+            // Use offsetWidth/offsetHeight for the element's internal dimensions
+            // (getBoundingClientRect gives viewport-relative coordinates which can cause issues)
+            const width = this.gameArea.offsetWidth;
+            const height = this.gameArea.offsetHeight;
+            
+            // Debug bounds
+            if (!this.boundsLogged) {
+                console.log(`[BOUNDS GP${this.gamepadIndex}] Game area size:`, width, 'x', height);
+                this.boundsLogged = true;
+            }
+            
+            // Account for cursor size (30px diameter) so it stays fully visible
+            const cursorRadius = 15;
+            this.cursorX = Math.max(cursorRadius, Math.min(width - cursorRadius, this.cursorX));
+            this.cursorY = Math.max(cursorRadius, Math.min(height - cursorRadius, this.cursorY));
+        } else {
+            // Fallback to window bounds before game area is initialized
+            const cursorRadius = 15;
+            this.cursorX = Math.max(cursorRadius, Math.min(window.innerWidth - cursorRadius, this.cursorX));
+            this.cursorY = Math.max(cursorRadius, Math.min(window.innerHeight - cursorRadius, this.cursorY));
         }
     }
     
@@ -235,8 +243,17 @@ class InputHandler {
     }
     
     reset() {
-        this.cursorX = window.innerWidth / 2;
-        this.cursorY = window.innerHeight / 2;
+        // Reset to center of game area if available, otherwise window center
+        if (this.gameArea) {
+            this.cursorX = this.gameArea.offsetWidth / 2;
+            this.cursorY = this.gameArea.offsetHeight / 2;
+        } else {
+            this.cursorX = window.innerWidth / 2;
+            this.cursorY = window.innerHeight / 2;
+        }
+        
+        // Ensure position is within bounds
+        this.clampToBounds();
         this.updateCursorPosition();
     }
 }
